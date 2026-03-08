@@ -3,7 +3,9 @@
 use App\Auth\Application\IssueToken;
 use App\Auth\Domain\ClientRepository;
 use App\Auth\Infrastructure\JwtGenerator;
+use App\Auth\Infrastructure\JwtValidator;
 use App\Auth\Infrastructure\LoggedClientRepository;
+use App\Auth\Infrastructure\Middleware\JwtAuthMiddleware;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Lcobucci\JWT\Configuration;
@@ -15,24 +17,38 @@ return [
         return Configuration::forAsymmetricSigner(
             new Sha256(),
             InMemory::file(__DIR__ . '/../var/keys/private.pem'),
-            InMemory::file(__DIR__ . '/../var/keys/public.pem')
+            InMemory::file(__DIR__ . '/../var/keys/public.pem'),
         );
     },
-    ClientRepository::class => DI\get(LoggedClientRepository::class),
-    Connection::class => function() {
-        $dbPath = realpath(__DIR__ . '/../var/storage') . '/database.sqlite';
+
+    Connection::class => function () {
+        $dir = realpath(__DIR__ . '/../var/storage');
+        if (!$dir) {
+            throw new RuntimeException("Storage directory not found at var/storage");
+        }
         return DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
-            'path' => $dbPath
+            'path' => $dir . '/database.sqlite',
         ]);
     },
 
-    JwtGenerator::class => DI\autowire(),
+    ClientRepository::class => DI\get(LoggedClientRepository::class),
 
-    IssueToken::class => function ($container) {
+    JwtGenerator::class => function ($c) {
+        return new JwtGenerator($c->get(Configuration::class));
+    },
+
+    JwtValidator::class => function ($c) {
+        return new JwtValidator($c->get(Configuration::class));
+    },
+    'jwt.ttl' => (int) ($_ENV['JWT_TTL'] ?? 30), //30 secs
+    IssueToken::class => function ($c) {
         return new IssueToken(
-            $container->get(ClientRepository::class),
-            $container->get(JwtGenerator::class),
+            $c->get(ClientRepository::class),
+            $c->get(JwtGenerator::class),
+            $c->get('jwt.ttl'),
         );
     },
+
+    JwtAuthMiddleware::class => DI\autowire(),
 ];

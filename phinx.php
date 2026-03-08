@@ -6,7 +6,7 @@ return
     [
         'paths' => [
             'migrations' => __DIR__ . '/db/migrations',
-            'seeds' => __DIR__ . '/db/seeds'
+            'seeds' => __DIR__ . '/db/seeds',
         ],
         'environments' => [
             'default_migration_table' => 'phinxlog',
@@ -15,7 +15,7 @@ return
                 'adapter' => 'sqlite',
                 'name' => __DIR__ . '/var/storage/database',
                 'suffix' => '.sqlite',
-            ]
+            ],
         ],
-        'version_order' => 'creation'
+        'version_order' => 'creation',
     ];

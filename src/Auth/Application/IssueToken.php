@@ -12,10 +12,11 @@ class IssueToken
 {
     public function __construct(
         private ClientRepository $clients,
-        private JwtGenerator $jwtGenerator
+        private JwtGenerator $jwtGenerator,
+        private int $tokenTtl,
     ) {}
 
-    public function execute(string $clientId, string $clientSecret, array $requestedScopes = []): string
+    public function execute(string $clientId, string $clientSecret, array $requestedScopes = []): array
     {
         $client = $this->clients->findByIdentifier($clientId);
 
@@ -26,6 +27,10 @@ class IssueToken
         $allowedScopes = array_intersect($requestedScopes, $client->getScopes());
         $finalScopes = empty($allowedScopes) ? ['default'] : $allowedScopes;
 
-        return $this->jwtGenerator->generate($client->getIdentifier(), $finalScopes);
+        $jwt = $this->jwtGenerator->generate($client->getIdentifier(), $finalScopes, $this->tokenTtl);
+        return [
+            'token' => $jwt,
+            'expires_in' => $this->tokenTtl,
+        ];
     }
 }

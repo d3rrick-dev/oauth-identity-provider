@@ -3,14 +3,15 @@
 declare(strict_types=1);
 
 namespace App\Auth\Domain;
+
 class Client
 {
     public function __construct(
         private string $identifier,
         private string $hashedSecret,
         private string $name,
-        private array $scopes = ['basic']
-    ){}
+        private array $scopes = ['basic'],
+    ) {}
 
     public function getIdentifier(): string
     {

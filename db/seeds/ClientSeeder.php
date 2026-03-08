@@ -13,7 +13,7 @@ class ClientSeeder extends AbstractSeed
                 'client_name'   => 'web application',
                 'scopes'        => json_encode(['messages.read', 'messages.write']),
                 'created_at'    => date('Y-m-d H:i:s'),
-            ]
+            ],
         ];
 
         $table = $this->table('oauth_clients');

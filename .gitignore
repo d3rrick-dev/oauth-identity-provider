@@ -1,0 +1,6 @@
+var/storage/
+var/keys/*.pem
+vendor/
+.env
+.cache
+.idea

@@ -19,7 +19,7 @@ class TokenE2ETest extends BaseTestCase
             $clientId,
             password_hash($plainSecret, PASSWORD_BCRYPT),
             'Test Mobile App',
-            ['messages.read']
+            ['messages.read'],
         );
 
         $this->clientRepository->save($testClient);
@@ -27,11 +27,11 @@ class TokenE2ETest extends BaseTestCase
 
         $request = $this->createRequest('POST', '/auth/token', [
             'client_id'     => $savedClient->getIdentifier(),
-            'client_secret' => $plainSecret
+            'client_secret' => $plainSecret,
         ]);
 
         $response = $this->app->handle($request);
-        $payload = json_decode((string)$response->getBody(), true);
+        $payload = json_decode((string) $response->getBody(), true);
 
         $this->assertEquals(200, $response->getStatusCode(), "Response body: " . $response->getBody());
         $this->assertArrayHasKey('access_token', $payload);
@@ -54,12 +54,12 @@ class TokenE2ETest extends BaseTestCase
             $clientId,
             password_hash($correctSecret, PASSWORD_BCRYPT),
             'Secure App',
-            ['messages.read']
+            ['messages.read'],
         );
         $this->clientRepository->save($testClient);
         $request = $this->createRequest('POST', '/auth/token', [
             'client_id'     => $clientId,
-            'client_secret' => '34'
+            'client_secret' => '34',
         ]);
 
         $this->expectException(HttpUnauthorizedException::class);

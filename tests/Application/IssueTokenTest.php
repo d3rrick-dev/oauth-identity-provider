@@ -19,7 +19,7 @@ class IssueTokenTest extends TestCase
         $client = new Client('app', password_hash('correct', PASSWORD_BCRYPT), 'Name', []);
         $repo->method('findByIdentifier')->willReturn($client);
 
-        $service = new IssueToken($repo, $generator);
+        $service = new IssueToken($repo, $generator, 1);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid client credentials');

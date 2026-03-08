@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Africa/Nairobi');
+
 use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
 

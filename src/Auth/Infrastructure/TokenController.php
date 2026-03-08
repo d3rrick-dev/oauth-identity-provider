@@ -13,7 +13,7 @@ use Slim\Exception\HttpUnauthorizedException;
 readonly class TokenController
 {
     public function __construct(
-        private IssueToken $issueToken
+        private IssueToken $issueToken,
     ) {}
 
     public function __invoke(Request $request, Response $response): Response
@@ -23,12 +23,12 @@ readonly class TokenController
         $clientSecret = $params['client_secret'] ?? '';
 
         try {
-            $jwt = $this->issueToken->execute($clientId, $clientSecret);
+            $result = $this->issueToken->execute($clientId, $clientSecret);
 
             $payload = [
-                'access_token' => $jwt,
+                'access_token' => $result['token'],
                 'token_type'   => 'Bearer',
-                'expires_in'   => 3600
+                'expires_in'   => $result['expires_in'],
             ];
 
             $response->getBody()->write(json_encode($payload));

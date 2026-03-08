@@ -10,15 +10,15 @@ use DateTimeImmutable;
 readonly class JwtGenerator
 {
     public function __construct(
-        private Configuration $jwtConfig
+        private Configuration $jwtConfig,
     ) {}
 
-    public function generate(string $clientId, array $scopes): string
+    public function generate(string $clientId, array $scopes, int $ttl): string
     {
         $now = new DateTimeImmutable();
-
+        $expiresAt = $now->modify("+{$ttl} seconds");
         return $this->jwtConfig->builder()
-            // iss: Who issued the token e.g this auth server
+            // iss: Who issued the token -> this auth server
             ->issuedBy('https://auth.this-app.com')
             // aud: Who is the token for (Your s Server/API)
             ->permittedFor('https://api.my-app.com')
@@ -27,13 +27,13 @@ readonly class JwtGenerator
             ->issuedAt($now)
             ->canOnlyBeUsedAfter($now)
             // exp: 1hr
-            ->expiresAt($now->modify('+15 second'))
+            ->expiresAt($expiresAt)
             // Custom Claims
             ->withClaim('client_id', $clientId)
             ->withClaim('scopes', $scopes)
             ->getToken(
                 $this->jwtConfig->signer(),
-                $this->jwtConfig->signingKey()
+                $this->jwtConfig->signingKey(),
             )
             ->toString();
     }
