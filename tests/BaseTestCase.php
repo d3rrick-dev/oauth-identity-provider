@@ -27,13 +27,9 @@ abstract class BaseTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->app = TestAppFactory::getAppInstance();
+        $this->app = TestAppFactory::getAppInstance(['jwt.ttl' => 1]);
         $this->container = $this->app->getContainer();
-        $routes = require __DIR__ . '/../config/routes.php';
-        $routes($this->app);
         $this->setupDatabase();
-
         $this->clientRepository = $this->container->get(ClientRepository::class);
     }
 
@@ -41,7 +37,7 @@ abstract class BaseTestCase extends TestCase
     {
         $this->db = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
-            'memory' => true
+            'memory' => true,
         ]);
 
         $this->container->set(Connection::class, $this->db);
@@ -59,7 +55,7 @@ abstract class BaseTestCase extends TestCase
         $manager = new Manager(
             new Config($configData),
             new ArrayInput([]),
-            new NullOutput()
+            new NullOutput(),
         );
         $manager->migrate('testing');
         $manager->seed('testing');
@@ -68,7 +64,7 @@ abstract class BaseTestCase extends TestCase
     protected function createRequest(
         string $method,
         string $path,
-        array $params = []
+        array $params = [],
     ): ServerRequestInterface {
         $factory = new ServerRequestFactory();
         $request = $factory->createServerRequest($method, $path);

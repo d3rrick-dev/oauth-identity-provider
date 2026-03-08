@@ -12,7 +12,7 @@ use Exception;
 class LoggedClientRepository implements ClientRepository
 {
     public function __construct(
-        private Connection $db
+        private Connection $db,
     ) {}
 
     public function findByIdentifier(string $identifier): ?Client
@@ -37,7 +37,7 @@ class LoggedClientRepository implements ClientRepository
                 $result['client_id'],
                 $result['client_secret'],
                 $result['client_name'],
-                json_decode($result['scopes'] ?? '[]', true)
+                json_decode($result['scopes'] ?? '[]', true),
             );
         } catch (Exception $e) {
             throw new Exception("Database error: " . $e->getMessage());
@@ -46,7 +46,7 @@ class LoggedClientRepository implements ClientRepository
 
     public function save(Client $client): void
     {
-        // needs more work, either decide to update existing details oer use another api
+        //TODO: needs more work, either decide to update existing details oer use another api
         $this->db->insert('oauth_clients', [
             'client_id' => $client->getIdentifier(),
             'client_secret' => $client->getHashedSecret(),

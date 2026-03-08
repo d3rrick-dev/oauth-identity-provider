@@ -10,13 +10,19 @@ use Slim\Factory\AppFactory;
 
 class TestAppFactory
 {
-    public static function getAppInstance(): App
+    public static function getAppInstance(array $overrides = []): App
     {
         $containerBuilder = new ContainerBuilder();
-        $containerBuilder->addDefinitions(__DIR__ . '/../config/container.php');
+        $definitions = require __DIR__ . '/../config/container.php';
+        if (!empty($overrides)) {
+            $definitions = array_merge($definitions, $overrides);
+        }
+        $containerBuilder->addDefinitions($definitions);
         $container = $containerBuilder->build();
-
         AppFactory::setContainer($container);
-        return AppFactory::create();
+        $app = AppFactory::create();
+        $routes = require __DIR__ . '/../config/routes.php';
+        $routes($app);
+        return $app;
     }
 }
